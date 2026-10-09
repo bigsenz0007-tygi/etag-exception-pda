@@ -33,8 +33,7 @@ export default {
   },
   methods: {
     isSpread(text) {
-      const len = String(text || '').length
-      return len === 2 || len === 3
+      return String(text || '').length === 2
     }
   }
 }
@@ -81,6 +80,7 @@ export default {
   flex-shrink: 0;
   font-size: 16px;
   line-height: 22px;
+  letter-spacing: 0;
   color: var(--pda-text-2, #525765);
 }
 
@@ -111,11 +111,14 @@ export default {
   font-size: 14px;
   line-height: 28px;
   height: 28px;
+  letter-spacing: 0;
+  text-align: left;
 }
 
 .pda-card.is-sm .pda-card__value {
   font-size: 14px;
   line-height: 28px;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
