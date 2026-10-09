@@ -28,6 +28,18 @@
           label="设备分类"
           placeholder="扫描后自动录入"
         />
+        <pda-scan-field
+          v-if="isNormal"
+          plain
+          readonly
+          :value="tagText"
+          label="电子标签"
+        />
+        <pda-warn-banner
+          v-if="isNormal"
+          tone="ok"
+          text="当前设备电子标签状态正常，不必处理～"
+        />
       </div>
     </div>
 
@@ -52,6 +64,7 @@ import PdaToast from '@/components/PdaToast.vue'
 import PdaCenterToast from '@/components/PdaCenterToast.vue'
 import PdaScanSheet from '@/components/PdaScanSheet.vue'
 import PdaSteps from '@/components/PdaSteps.vue'
+import PdaWarnBanner from '@/components/PdaWarnBanner.vue'
 import {
   MOCK_MATERIAL_CODES,
   REASON,
@@ -72,7 +85,8 @@ export default {
     PdaToast,
     PdaCenterToast,
     PdaScanSheet,
-    PdaSteps
+    PdaSteps,
+    PdaWarnBanner
   },
   data() {
     return {
@@ -96,12 +110,18 @@ export default {
     categoryText() {
       return this.material ? this.material.category : ''
     },
+    tagText() {
+      return this.material && this.material.systemTag ? this.material.systemTag : ''
+    },
+    isNormal() {
+      return Boolean(this.material && this.material.reason === REASON.NONE)
+    },
     scanHint() {
       return '扫描围板箱正面右上角标签的条码，确认与当前物资绑定。'
     },
     footerText() {
       if (!this.material) return '扫描物资条码'
-      if (this.material.reason === REASON.NONE) return '继续扫描'
+      if (this.isNormal) return '继续处理'
       return '去绑定电子标签'
     }
   },
@@ -128,10 +148,6 @@ export default {
     restoreSession() {
       const saved = getMaterial()
       if (!saved) return
-      if (saved.reason === REASON.NONE) {
-        this.$router.replace({ name: 'complete' })
-        return
-      }
       this.materialCode = saved.code
       this.material = saved
     },
@@ -180,7 +196,7 @@ export default {
     },
     persistReason() {
       if (!this.material || this.material.reason === REASON.NONE) {
-        setJudgement({ reason: '', label: '', physicalTag: '', hasTag: '' })
+        setJudgement({ reason: '', label: '', physicalTag: '', hasTag: '', tagId: '' })
         return
       }
       if (this.material.reason === REASON.UNREGISTERED) {
@@ -188,7 +204,8 @@ export default {
           reason: REASON.UNREGISTERED,
           label: REASON_LABEL.UNREGISTERED,
           physicalTag: '',
-          hasTag: ''
+          hasTag: '',
+          tagId: ''
         })
         return
       }
@@ -197,7 +214,8 @@ export default {
           reason: REASON.LOW_BATTERY,
           label: REASON_LABEL.LOW_BATTERY,
           physicalTag: '',
-          hasTag: ''
+          hasTag: '',
+          tagId: ''
         })
         return
       }
@@ -208,7 +226,8 @@ export default {
         reason: same ? (saved.judgedReason || '') : '',
         label: same ? (saved.judgedReasonLabel || '') : '',
         physicalTag: same ? (saved.physicalTag || '') : '',
-        hasTag: same ? (saved.hasTag || '') : ''
+        hasTag: same ? (saved.hasTag || '') : '',
+        tagId: same ? (saved.tagId || '') : ''
       })
     },
     goBind() {
@@ -239,21 +258,18 @@ export default {
       }
       this.material = result.data
       if (prevCode && prevCode !== result.data.code) {
-        setJudgement({ reason: '', label: '', physicalTag: '', hasTag: '' })
+        setJudgement({ reason: '', label: '', physicalTag: '', hasTag: '', tagId: '' })
       }
       setMaterial(result.data)
       this.persistReason()
-      if (result.data.reason === REASON.NONE) {
-        this.$router.replace({ name: 'complete' })
-        return
-      }
+      if (result.data.reason === REASON.NONE) return
       if (goBind) this.goBind()
     },
     resetToIdle() {
       this.materialCode = ''
       this.material = null
       setMaterial(null)
-      setJudgement({ reason: '', label: '', physicalTag: '', hasTag: '' })
+      setJudgement({ reason: '', label: '', physicalTag: '', hasTag: '', tagId: '' })
     },
     onFooterClick() {
       if (!this.material) {

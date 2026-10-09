@@ -1,7 +1,7 @@
 <template>
-  <div v-if="text" class="pda-warn">
+  <div v-if="text" class="pda-warn" :class="{ 'is-ok': tone === 'ok' }">
     <span class="pda-warn__icon">
-      <img :src="iconWarn" width="16" height="16" alt="" />
+      <img :src="iconSrc" width="16" height="16" alt="" />
     </span>
     <p>{{ text }}</p>
   </div>
@@ -9,14 +9,21 @@
 
 <script>
 import iconWarn from '@/assets/figma/icon-warn.png'
+import iconOk from '@/assets/figma/icon-success-fill.svg'
 
 export default {
   name: 'PdaWarnBanner',
   props: {
-    text: { type: String, default: '' }
+    text: { type: String, default: '' },
+    tone: { type: String, default: 'warn' }
   },
   data() {
-    return { iconWarn }
+    return { iconWarn, iconOk }
+  },
+  computed: {
+    iconSrc() {
+      return this.tone === 'ok' ? this.iconOk : this.iconWarn
+    }
   }
 }
 </script>
@@ -31,6 +38,10 @@ export default {
   padding: 4px;
   border-radius: 4px;
   background: rgba(255, 119, 0, 0.1);
+}
+
+.pda-warn.is-ok {
+  background: rgba(18, 179, 93, 0.1);
 }
 
 .pda-warn__icon {
@@ -57,5 +68,9 @@ export default {
   font-size: 14px;
   line-height: 20px;
   color: #ff7700;
+}
+
+.pda-warn.is-ok p {
+  color: #12b35d;
 }
 </style>

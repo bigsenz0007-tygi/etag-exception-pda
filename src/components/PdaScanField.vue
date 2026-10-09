@@ -88,18 +88,20 @@ export default {
 .pda-scan__row {
   display: flex;
   align-items: center;
+  gap: var(--pda-label-gap, 8px);
   height: 32px;
 }
 
 .pda-scan__label {
-  width: 72px;
+  width: var(--pda-label-w, 64px);
   margin: 0;
   flex-shrink: 0;
   font-size: 16px;
-  line-height: 32px;
-  height: 32px;
+  line-height: 24px;
+  height: 24px;
   color: var(--pda-text-2, #525765);
   text-align: left;
+  white-space: nowrap;
 }
 
 .pda-scan__label.is-spread {
@@ -137,7 +139,8 @@ export default {
 }
 
 .pda-scan__box.is-readonly {
-  background: var(--pda-fill, #f5f5f6);
+  background: #fff;
+  border-color: var(--pda-border, #e4e5e9);
 }
 
 .pda-scan__box:focus-within {

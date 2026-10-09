@@ -1,5 +1,8 @@
 <template>
-  <section class="pda-card" :class="{ 'is-plain': plain, 'is-sm': size === 'sm' }">
+  <section
+    class="pda-card"
+    :class="{ 'is-plain': plain, 'is-sm': size === 'sm', 'has-title': Boolean(title) }"
+  >
     <h2 v-if="title" class="pda-card__title">{{ title }}</h2>
     <div
       v-for="(row, index) in rows"
@@ -8,10 +11,7 @@
     >
       <span
         class="pda-card__label"
-        :class="{
-          'is-spread': isSpread(row.label),
-          'is-4': labelLen(row.label) === 4
-        }"
+        :class="labelClass(row.label)"
       >{{ row.label }}</span>
       <span
         class="pda-card__value"
@@ -41,8 +41,21 @@ export default {
     labelLen(text) {
       return String(text || '').length
     },
-    isSpread(text) {
-      return this.labelLen(text) === 2
+    labelClass(text) {
+      const n = this.labelLen(text)
+      if (this.size === 'sm') {
+        return {
+          'is-spread': n === 2,
+          'is-4': n === 4
+        }
+      }
+      return {
+        'is-spread': n === 2,
+        'is-2': n === 2,
+        'is-4': n === 4,
+        'is-5': n === 5,
+        'is-7': n === 7
+      }
     }
   }
 }
@@ -74,10 +87,18 @@ export default {
   align-items: center;
 }
 
+.pda-card.has-title .pda-card__title {
+  margin-bottom: 4px;
+}
+
+.pda-card.has-title .pda-card__item + .pda-card__item {
+  margin-top: 4px;
+}
+
 .pda-card__item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--pda-label-gap, 8px);
   height: 32px;
   min-height: 32px;
   padding: 0;
@@ -87,9 +108,23 @@ export default {
 .pda-card__label {
   flex-shrink: 0;
   font-size: 16px;
-  line-height: 22px;
+  line-height: 24px;
   letter-spacing: 0;
   color: var(--pda-text-2, #525765);
+  white-space: nowrap;
+}
+
+.pda-card__label.is-2,
+.pda-card__label.is-4 {
+  width: 64px;
+}
+
+.pda-card__label.is-5 {
+  width: 80px;
+}
+
+.pda-card__label.is-7 {
+  width: 112px;
 }
 
 .pda-card__label.is-spread {
@@ -101,7 +136,7 @@ export default {
   flex: 1;
   min-width: 0;
   font-size: 16px;
-  line-height: 22px;
+  line-height: 24px;
   color: var(--pda-text, #23252b);
   word-break: break-all;
 }

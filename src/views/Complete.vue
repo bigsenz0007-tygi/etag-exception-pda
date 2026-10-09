@@ -78,7 +78,7 @@ export default {
         return [
           { label: '物资条码', value: log.materialCode || material.code },
           { label: '电子标签', value: log.newTag || bound.tagId },
-          { label: '绑定状态', value: '待确认', tone: 'warn' }
+          { label: '绑定状态', value: '绑定成功', tone: 'ok' }
         ]
       }
       return [

@@ -13,14 +13,25 @@ export const REASON_LABEL = {
   LOW_BATTERY: '电子标签电量低于5%',
   DAMAGE_GROUP: '电子标签损坏、脱落或绑错',
   DAMAGED: '电子标签损坏，需绑新标签',
-  MISBOUND: '电子标签绑错，需重新绑定',
+  DAMAGED_SHORT: '电子标签损坏',
+  MISBOUND: '电子标签绑错',
   DETACHED: '电子标签脱落，需绑新标签',
   NONE: '无异常'
 }
 
+export const WARN = {
+  UNREGISTERED: '扫描围板箱正面右上角标签的条码，确认与当前物资绑定。',
+  LOW_BATTERY: '当前电量低于5%，需扫描新的电子标签并建立新的绑定关系。',
+  DAMAGE_CHECK: '请检查实物的物资编码和实物电子标签与系统信息是否一致。',
+  DETACHED: '请扫描新的电子标签，替换当前异常标签并建立新的绑定关系。',
+  DAMAGED: '需绑定新标签，替换当前异常标签并建立新的绑定关系。',
+  DAMAGED_CONFIRMED: '需绑定新标签。替换当前异常标签并建立新的绑定关系。',
+  MISBOUND: '请确保当前标签为对应物资的实物电子标签，点击确定绑定后会替换系统原标签。'
+}
+
 const GUIDE = {
-  scanHint: '扫描围板箱正面右上角标签的条码，确认与当前物资绑定。',
-  guidePlace: '围板箱｜正面右上角',
+  scanHint: WARN.UNREGISTERED,
+  guidePlace: '围板箱 | 正面右上角',
   guideImage: true
 }
 
@@ -39,25 +50,25 @@ function material(code, extra) {
 const MATERIALS = {
   WZUNREG001: material('WZUNREG001', {
     reason: REASON.UNREGISTERED,
-    warnText: GUIDE.scanHint
+    warnText: WARN.UNREGISTERED
   }),
   WZLOW001: material('WZLOW001', {
     reason: REASON.LOW_BATTERY,
     battery: 3,
     systemTag: 'ESL-0817-6352',
-    warnText: '当前电量低于5%，需更换电子标签'
+    warnText: WARN.LOW_BATTERY
   }),
   WZDAM001: material('WZDAM001', {
     reason: REASON.DAMAGE_GROUP,
     battery: 68,
     systemTag: 'ESL-0817-6352',
-    warnText: '请检查实物的物资编码和实物电子标签与系统信息是否一致。'
+    warnText: WARN.DAMAGE_CHECK
   }),
   CSL22010533608938: material('CSL22010533608938', {
     reason: REASON.DAMAGE_GROUP,
     battery: 68,
     systemTag: 'ESL-0817-6352',
-    warnText: '请检查实物的物资编码和实物电子标签与系统信息是否一致。'
+    warnText: WARN.DAMAGE_CHECK
   }),
   WZOK001: material('WZOK001', {
     reason: REASON.NONE,
@@ -134,7 +145,7 @@ export function judgePhysicalTag(physicalTag, material) {
   }
   const systemTag = String((material && material.systemTag) || '').trim().toUpperCase()
   if (systemTag && tag === systemTag) {
-    return { ok: true, reason: REASON.DAMAGED, label: REASON_LABEL.DAMAGED }
+    return { ok: true, reason: REASON.DAMAGED, label: REASON_LABEL.DAMAGED_SHORT }
   }
   return { ok: true, reason: REASON.MISBOUND, label: REASON_LABEL.MISBOUND }
 }

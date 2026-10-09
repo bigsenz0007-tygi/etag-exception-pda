@@ -9,13 +9,12 @@
       <pda-info-card :rows="materialRows" />
 
       <section class="card">
-        <div class="card__head">
+        <div class="card__head is-status">
           <h2>{{ statusCardTitle }}</h2>
           <span class="tag">{{ statusText }}</span>
         </div>
-        <pda-info-card plain :rows="tagRows">
-          <pda-warn-banner v-if="showWarn" :text="warnText" />
-        </pda-info-card>
+        <pda-info-card plain :rows="tagRows" />
+        <pda-warn-banner v-if="showLeadWarn" :text="leadWarnText" />
         <pda-radio-group
           v-if="isDamageGroup"
           layout="split"
@@ -36,6 +35,20 @@
           @confirm="confirmPhysical"
         />
         <pda-info-card v-if="verifyText" plain :rows="verifyRows" />
+        <pda-warn-banner v-if="showFollowWarn" :text="followWarnText" />
+        <pda-scan-field
+          v-if="showBindScan"
+          plain
+          v-model="tagId"
+          :label="bindFieldLabel"
+          placeholder="请扫描或输入"
+          :error="bindScanError"
+          :settled="Boolean(validTag)"
+          @input="onBindInput"
+          @scan="scanNewTag"
+          @confirm="confirmTag"
+        />
+        <pda-warn-banner v-if="showUnregWarn" :text="unregWarnText" />
       </section>
 
       <section v-if="showGuide" class="card">
@@ -83,6 +96,7 @@ import {
   MOCK_TAG_CODES,
   REASON,
   REASON_LABEL,
+  WARN,
   bindTag,
   buildDisposalLog,
   judgePhysicalTag,
@@ -119,6 +133,7 @@ export default {
       tagOptions: MOCK_TAG_CODES,
       physicalOptions: MOCK_PHYSICAL_CODES,
       scanError: false,
+      bindScanError: false,
       radioError: false,
       bindFailed: false,
       toastTimer: null
@@ -150,7 +165,7 @@ export default {
         { label: '异常原因', value: this.groupReasonLabel }
       ]
       if (material.systemTag) {
-        rows.push({ label: '标签编码', value: material.systemTag })
+        rows.push({ label: '已绑定标签编码', value: material.systemTag })
       }
       if (material.reason === REASON.LOW_BATTERY) {
         rows.push({ label: '当前电量', value: material.battery + '%' })
@@ -162,15 +177,8 @@ export default {
       if (this.material.reason === REASON.DAMAGE_GROUP) return REASON_LABEL.DAMAGE_GROUP
       return this.judgedReasonLabel || REASON_LABEL[this.material.reason] || '—'
     },
-    warnText() {
-      return this.material && this.material.warnText ? this.material.warnText : ''
-    },
-    showWarn() {
-      if (!this.warnText) return false
-      if (this.hasTag === 'yes' && this.verifyText) return false
-      return true
-    },
     statusCardTitle() {
+      if (this.isDamageGroup && this.hasTag) return '电子标签'
       return '电子标签状态'
     },
     showGuide() {
@@ -183,28 +191,77 @@ export default {
       if (!this.isDamageGroup) return ''
       if (this.hasTag === 'no') return REASON_LABEL.DETACHED
       if (this.judgedReason === REASON.MISBOUND) return REASON_LABEL.MISBOUND
-      if (this.judgedReason === REASON.DAMAGED) return this.judgedReasonLabel
+      if (this.judgedReason === REASON.DAMAGED) {
+        return this.validTag ? REASON_LABEL.DAMAGED : REASON_LABEL.DAMAGED_SHORT
+      }
       return ''
     },
     verifyRows() {
       return [{ label: '核验结果', value: this.verifyText, tone: 'error' }]
+    },
+    isMisbound() {
+      return this.judgedReason === REASON.MISBOUND
+    },
+    isDamaged() {
+      return this.judgedReason === REASON.DAMAGED
+    },
+    isDetached() {
+      return this.hasTag === 'no' || this.judgedReason === REASON.DETACHED
+    },
+    showLeadWarn() {
+      if (!this.material) return false
+      if (this.material.reason === REASON.LOW_BATTERY) return true
+      return this.isDamageGroup && !this.hasTag
+    },
+    leadWarnText() {
+      if (this.material && this.material.reason === REASON.LOW_BATTERY) return WARN.LOW_BATTERY
+      return WARN.DAMAGE_CHECK
+    },
+    showUnregWarn() {
+      return Boolean(this.material && this.material.reason === REASON.UNREGISTERED && !this.validTag)
+    },
+    unregWarnText() {
+      return WARN.UNREGISTERED
+    },
+    showFollowWarn() {
+      if (!this.material) return false
+      if (this.isDetached && this.verifyText) return !this.validTag
+      if (this.isDamaged) return true
+      if (this.isMisbound) return true
+      return false
+    },
+    followWarnText() {
+      if (this.isDetached) return WARN.DETACHED
+      if (this.isDamaged) return this.validTag ? WARN.DAMAGED_CONFIRMED : WARN.DAMAGED
+      if (this.isMisbound) return WARN.MISBOUND
+      return ''
+    },
+    showBindScan() {
+      if (!this.material) return false
+      if (this.material.reason === REASON.UNREGISTERED) return true
+      if (this.material.reason === REASON.LOW_BATTERY) return true
+      if (this.isMisbound) return false
+      if (this.isDetached && this.verifyText) return true
+      if (this.isDamaged) return true
+      return false
+    },
+    bindFieldLabel() {
+      if (this.isDamageGroup) return '绑定标签'
+      return '电子标签'
     },
     statusText() {
       if (this.material && this.material.reason === REASON.UNREGISTERED) return '未绑定'
       return '异常'
     },
     canBind() {
-      if (!this.material) return false
-      if (!this.isDamageGroup) return true
-      return Boolean(this.verifyText)
+      return Boolean(this.validTag)
     },
     footerText() {
       if (this.bindFailed) return '重新绑定电子标签'
       if (!this.material) return '绑定电子标签'
-      if (this.material.reason === REASON.UNREGISTERED) return '绑定电子标签'
-      if (this.judgedReason === REASON.MISBOUND) return '重新扫描电子标签'
-      if (this.material.reason === REASON.LOW_BATTERY) return '绑定新电子标签'
-      if (this.verifyText) return '绑定新电子标签'
+      if (this.material.reason === REASON.UNREGISTERED) return '确认绑定'
+      if (this.material.reason === REASON.LOW_BATTERY) return '确认绑定新标签'
+      if (this.verifyText) return '确定绑定新标签'
       return '绑定电子标签'
     }
   },
@@ -219,6 +276,7 @@ export default {
     this.physicalTag = judgement.physicalTag || ''
     this.judgedReason = judgement.judgedReason || ''
     this.judgedReasonLabel = judgement.judgedReasonLabel || ''
+    const savedTagId = judgement.tagId || ''
     if (material.reason === REASON.UNREGISTERED) {
       this.judgedReason = REASON.UNREGISTERED
       this.judgedReasonLabel = REASON_LABEL.UNREGISTERED
@@ -229,6 +287,12 @@ export default {
       this.syncDetached()
     } else if (material.reason === REASON.DAMAGE_GROUP && this.physicalTag) {
       this.applyPhysicalResult(this.physicalTag, { silent: true })
+    }
+    if (this.isMisbound && this.physicalTag) {
+      this.syncMisboundTag({ silent: true })
+    } else if (savedTagId) {
+      this.tagId = savedTagId
+      this.confirmTag({ silent: true })
     }
     this.persistJudgement()
   },
@@ -245,8 +309,13 @@ export default {
         reason: this.judgedReason,
         label: this.judgedReasonLabel,
         physicalTag: this.physicalTag,
-        hasTag: this.hasTag
+        hasTag: this.hasTag,
+        tagId: this.tagId
       })
+    },
+    hideToasts() {
+      this.toast.visible = false
+      this.centerToast.visible = false
     },
     showToast(message, type) {
       this.centerToast.visible = false
@@ -297,12 +366,14 @@ export default {
       this.openScan('tag')
     },
     onHasTagChange() {
+      this.hideToasts()
       this.physicalTag = ''
       this.judgedReason = ''
       this.judgedReasonLabel = ''
       this.validTag = null
       this.tagId = ''
       this.scanError = false
+      this.bindScanError = false
       this.radioError = false
       this.bindFailed = false
       if (this.hasTag === 'no') this.syncDetached()
@@ -311,6 +382,11 @@ export default {
     syncDetached() {
       this.judgedReason = REASON.DETACHED
       this.judgedReasonLabel = REASON_LABEL.DETACHED
+    },
+    syncMisboundTag(options) {
+      const silent = options && options.silent
+      this.tagId = this.physicalTag
+      return this.confirmTag({ silent: silent, skipReject: false })
     },
     pickPhysical(code) {
       this.sheet = ''
@@ -327,7 +403,12 @@ export default {
       this.judgedReason = result.reason
       this.judgedReasonLabel = result.label
       this.scanError = false
-      this.toast.visible = false
+      this.hideToasts()
+      this.validTag = null
+      this.tagId = ''
+      this.bindFailed = false
+      this.bindScanError = false
+      if (result.reason === REASON.MISBOUND) this.syncMisboundTag({ silent: true })
       this.persistJudgement()
       return true
     },
@@ -337,20 +418,31 @@ export default {
       this.scanError = !ok
       return ok
     },
+    onBindInput(value) {
+      this.tagId = value
+      this.validTag = null
+      this.bindFailed = false
+      this.bindScanError = false
+    },
     pickTag(code) {
       this.sheet = ''
       this.tagId = code
-      if (!this.confirmTag()) return
-      this.doBind()
+      this.confirmTag()
     },
-    confirmTag() {
+    confirmTag(options) {
+      const silent = options && options.silent
       this.validTag = null
       const result = validateTag(this.tagId, { rejectTagId: this.rejectTagId })
       if (!result.ok) {
-        this.showBindError(result)
+        this.bindScanError = true
+        if (!silent) this.showBindError(result)
         return false
       }
+      this.bindScanError = false
+      this.bindFailed = false
       this.validTag = result.data
+      this.hideToasts()
+      this.persistJudgement()
       return true
     },
     ensureJudged() {
@@ -375,7 +467,8 @@ export default {
       if (!this.material) return
       if (!this.ensureJudged()) return
       if (!this.validTag) {
-        this.scanNewTag()
+        this.bindScanError = this.showBindScan
+        this.showToast(this.showBindScan ? '请扫描要绑定的电子标签' : '请扫描实物的电子标签', 'error')
         return
       }
       this.doBind()
@@ -440,6 +533,11 @@ export default {
   align-items: center;
   justify-content: space-between;
   min-height: 28px;
+}
+
+.card__head.is-status {
+  min-height: 24px;
+  height: 24px;
 }
 
 .card__head h2 {

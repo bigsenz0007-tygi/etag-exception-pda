@@ -47,8 +47,8 @@ export default {
   --pda-footer-h: 48px;
   --pda-gutter: 8px;
   --pda-pad: 8px;
-  --pda-label-w: 72px;
-  --pda-label-gap: 0px;
+  --pda-label-w: 64px;
+  --pda-label-gap: 8px;
   --pda-row-py: 0px;
   --pda-radius-card: 8px;
   --pda-radius-input: 8px;

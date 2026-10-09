@@ -67,6 +67,7 @@ export default {
 .pda-radio {
   display: flex;
   align-items: center;
+  height: 32px;
   min-height: 32px;
 }
 
@@ -79,8 +80,9 @@ export default {
   margin: 0;
   flex-shrink: 0;
   font-size: 16px;
-  line-height: 22px;
+  line-height: 24px;
   color: var(--pda-text-2, #525765);
+  white-space: nowrap;
 }
 
 .pda-radio__row {

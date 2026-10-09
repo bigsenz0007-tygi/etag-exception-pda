@@ -13,6 +13,7 @@ const state = {
   judgedReasonLabel: '',
   physicalTag: '',
   hasTag: '',
+  tagId: '',
   boundTag: null,
   currentLog: null,
   logs: []
@@ -24,6 +25,7 @@ function clearSessionWork() {
   state.judgedReasonLabel = ''
   state.physicalTag = ''
   state.hasTag = ''
+  state.tagId = ''
   state.boundTag = null
   state.currentLog = null
 }
@@ -57,6 +59,7 @@ export function setJudgement(payload) {
   state.judgedReasonLabel = data.label || ''
   state.physicalTag = data.physicalTag || ''
   state.hasTag = data.hasTag == null ? '' : String(data.hasTag)
+  state.tagId = data.tagId == null ? '' : String(data.tagId)
 }
 
 export function getJudgement() {
@@ -64,7 +67,8 @@ export function getJudgement() {
     judgedReason: state.judgedReason,
     judgedReasonLabel: state.judgedReasonLabel,
     physicalTag: state.physicalTag,
-    hasTag: state.hasTag
+    hasTag: state.hasTag,
+    tagId: state.tagId
   }
 }
 
