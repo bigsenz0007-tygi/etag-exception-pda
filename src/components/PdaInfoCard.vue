@@ -33,7 +33,8 @@ export default {
   },
   methods: {
     isSpread(text) {
-      return String(text || '').length === 2
+      const len = String(text || '').length
+      return len === 2 || len === 3
     }
   }
 }
@@ -50,6 +51,8 @@ export default {
   background: transparent;
   border-radius: 0;
   padding: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .pda-card__title {
@@ -65,15 +68,16 @@ export default {
 
 .pda-card__item {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 8px;
+  height: 32px;
   min-height: 32px;
-  padding: 4px 0;
+  padding: 0;
   box-sizing: border-box;
 }
 
 .pda-card__label {
-  width: auto;
+  min-width: 64px;
   flex-shrink: 0;
   font-size: 16px;
   line-height: 22px;
@@ -97,22 +101,21 @@ export default {
 .pda-card.is-sm .pda-card__item {
   min-height: 28px;
   height: 28px;
-  align-items: center;
   gap: 4px;
-  padding: 0;
 }
 
 .pda-card.is-sm .pda-card__label {
   width: 60px;
+  min-width: 60px;
+  max-width: 60px;
   font-size: 14px;
-  line-height: 32px;
+  line-height: 28px;
   height: 28px;
-  overflow: hidden;
 }
 
 .pda-card.is-sm .pda-card__value {
   font-size: 14px;
-  line-height: 32px;
+  line-height: 28px;
   text-transform: uppercase;
 }
 

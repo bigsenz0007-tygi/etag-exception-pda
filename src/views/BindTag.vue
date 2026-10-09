@@ -13,8 +13,9 @@
           <h2>{{ statusCardTitle }}</h2>
           <span class="tag">{{ statusText }}</span>
         </div>
-        <pda-info-card plain :rows="tagRows" />
-        <pda-warn-banner v-if="showWarn" :text="warnText" />
+        <pda-info-card plain :rows="tagRows">
+          <pda-warn-banner v-if="showWarn" :text="warnText" />
+        </pda-info-card>
         <pda-radio-group
           v-if="isDamageGroup"
           layout="split"
@@ -170,7 +171,6 @@ export default {
       return true
     },
     statusCardTitle() {
-      if (this.isDamageGroup && this.hasTag) return '电子标签'
       return '电子标签状态'
     },
     showGuide() {
