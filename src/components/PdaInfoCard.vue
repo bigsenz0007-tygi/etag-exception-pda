@@ -6,7 +6,13 @@
       :key="row.key || index"
       class="pda-card__item"
     >
-      <span class="pda-card__label" :class="{ 'is-spread': isSpread(row.label) }">{{ row.label }}</span>
+      <span
+        class="pda-card__label"
+        :class="{
+          'is-spread': isSpread(row.label),
+          'is-4': labelLen(row.label) === 4
+        }"
+      >{{ row.label }}</span>
       <span
         class="pda-card__value"
         :class="{
@@ -32,8 +38,11 @@ export default {
     size: { type: String, default: 'default' }
   },
   methods: {
+    labelLen(text) {
+      return String(text || '').length
+    },
     isSpread(text) {
-      return String(text || '').length === 2
+      return this.labelLen(text) === 2
     }
   }
 }
@@ -76,7 +85,6 @@ export default {
 }
 
 .pda-card__label {
-  min-width: 64px;
   flex-shrink: 0;
   font-size: 16px;
   line-height: 22px;
@@ -105,14 +113,15 @@ export default {
 }
 
 .pda-card.is-sm .pda-card__label {
-  width: 60px;
-  min-width: 60px;
-  max-width: 60px;
+  width: auto;
   font-size: 14px;
   line-height: 28px;
   height: 28px;
   letter-spacing: 0;
-  text-align: left;
+}
+
+.pda-card.is-sm .pda-card__label.is-4 {
+  width: 60px;
 }
 
 .pda-card.is-sm .pda-card__value {
