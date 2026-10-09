@@ -1,6 +1,6 @@
 <template>
-  <div v-if="text" class="pda-warn" :class="{ 'is-ok': tone === 'ok' }">
-    <span class="pda-warn__icon">
+  <div v-if="text" class="pda-warn" :class="{ 'is-ok': tone === 'ok', 'is-info': tone === 'info' }">
+    <span v-if="tone !== 'info'" class="pda-warn__icon">
       <img :src="iconSrc" width="16" height="16" alt="" />
     </span>
     <p>{{ text }}</p>
@@ -72,5 +72,13 @@ export default {
 
 .pda-warn.is-ok p {
   color: #12b35d;
+}
+
+.pda-warn.is-info {
+  background: var(--pda-primary-10, rgba(60, 110, 240, 0.1));
+}
+
+.pda-warn.is-info p {
+  color: var(--pda-primary, #3c6ef0);
 }
 </style>

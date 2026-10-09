@@ -48,6 +48,7 @@
           @scan="scanNewTag"
           @confirm="confirmTag"
         />
+        <pda-warn-banner v-if="showUnregHint" tone="info" :text="unregHintText" />
         <pda-warn-banner v-if="showUnregWarn" :text="unregWarnText" />
       </section>
 
@@ -217,6 +218,12 @@ export default {
       if (this.material && this.material.reason === REASON.LOW_BATTERY) return WARN.LOW_BATTERY
       return WARN.DAMAGE_CHECK
     },
+    showUnregHint() {
+      return Boolean(this.material && this.material.reason === REASON.UNREGISTERED)
+    },
+    unregHintText() {
+      return WARN.UNREGISTERED_HINT
+    },
     showUnregWarn() {
       return Boolean(this.material && this.material.reason === REASON.UNREGISTERED && !this.validTag)
     },
@@ -259,7 +266,7 @@ export default {
     footerText() {
       if (this.bindFailed) return '重新绑定电子标签'
       if (!this.material) return '绑定电子标签'
-      if (this.material.reason === REASON.UNREGISTERED) return '确认绑定'
+      if (this.material.reason === REASON.UNREGISTERED) return '确认绑定标签'
       if (this.material.reason === REASON.LOW_BATTERY) return '确认绑定新标签'
       if (this.verifyText) return '确定绑定新标签'
       return '绑定电子标签'

@@ -21,6 +21,7 @@ export const REASON_LABEL = {
 
 export const WARN = {
   UNREGISTERED: '扫描围板箱正面右上角标签的条码，确认与当前物资绑定。',
+  UNREGISTERED_HINT: '请确保该标签为物资实物电子标签，确定绑定后系统将绑定该标签信息。',
   LOW_BATTERY: '当前电量低于5%，需扫描新的电子标签并建立新的绑定关系。',
   DAMAGE_CHECK: '请检查实物的物资编码和实物电子标签与系统信息是否一致。',
   DETACHED: '请扫描新的电子标签，替换当前异常标签并建立新的绑定关系。',
