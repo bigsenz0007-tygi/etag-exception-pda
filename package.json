@@ -1,0 +1,19 @@
+{
+  "name": "etag-exception-pda",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vite --host --port 5180",
+    "dev": "vite --host --port 5180",
+    "build": "vite build",
+    "preview": "vite preview --host --port 5180"
+  },
+  "dependencies": {
+    "vue": "^2.7.16",
+    "vue-router": "^3.6.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue2": "^2.3.3",
+    "vite": "^5.4.10"
+  }
+}

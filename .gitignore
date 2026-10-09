@@ -1,0 +1,8 @@
+node_modules
+dist
+.DS_Store
+*.log
+.delivery
+*.zip
+电子标签异常处置-步骤1-3状态截图/
+电子标签异常处置-状态与跳转设计稿/
