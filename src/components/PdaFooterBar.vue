@@ -3,6 +3,7 @@
     <button
       type="button"
       class="pda-footer__btn"
+      :class="{ 'is-muted': muted }"
       :disabled="disabled"
       @click="$emit('click')"
     >
@@ -16,7 +17,8 @@ export default {
   name: 'PdaFooterBar',
   props: {
     text: { type: String, default: '确定' },
-    disabled: { type: Boolean, default: false }
+    disabled: { type: Boolean, default: false },
+    muted: { type: Boolean, default: false }
   }
 }
 </script>
@@ -43,7 +45,8 @@ export default {
   font-weight: 400;
 }
 
-.pda-footer__btn:disabled {
+.pda-footer__btn:disabled,
+.pda-footer__btn.is-muted {
   opacity: 0.5;
   color: #fff;
   background: var(--pda-primary, #3c6ef0);

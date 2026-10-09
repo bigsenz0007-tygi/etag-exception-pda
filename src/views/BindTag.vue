@@ -47,7 +47,7 @@
       </section>
     </div>
 
-    <pda-footer-bar :text="footerText" :disabled="!canBind" @click="submitBind" />
+    <pda-footer-bar :text="footerText" :muted="!canBind" @click="submitBind" />
 
     <pda-scan-sheet
       :visible="sheet === 'tag'"
